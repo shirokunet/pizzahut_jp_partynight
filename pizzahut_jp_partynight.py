@@ -27,21 +27,29 @@ driver.get(url)
 # driver.save_screenshot("top.png")
 
 
-def click_xpath(webElement, loop=True):
+def click_xpath(webElement):
+    wait.until(expected_conditions.element_to_be_clickable((By.XPATH, webElement)))
+    time.sleep(0.2)
+    driver.find_element_by_xpath(webElement).click()
+
+def order_pizza(pizza):
     try:
-        wait.until(expected_conditions.element_to_be_clickable((By.XPATH, webElement)))
-        driver.find_element_by_xpath(webElement).click()
+        click_xpath("//*[text()='ピザ全品 デリバリーで30%off']")
+        click_xpath("//*[text()='ピザをお選びください（画像クリックで選択できます）']")
+        click_xpath("//*[@title='" + pizza + "']")
+        click_xpath("//*[text()='ふっくらパンピザ']")
+        click_xpath("//*[text()='カートに入れる']")
+        click_xpath("//*[text()='カートに商品を追加']")
     except Exception as e:
-        if loop:
-            print("Could not find: ", webElement)
-            print("Try again...")
-            time.sleep(1)
-            click_xpath(webElement)
+        print("Try again...")
+        driver.get("https://pizzahut.jp/order/hot-deal")
+        time.sleep(3)
+        order_pizza(pizza)
 
 
 if __name__ == '__main__':
     try:
-        click_xpath("//*[text()='住所で検索']", loop=False)
+        click_xpath("//*[text()='住所で検索']")
     except Exception as e:
         print(e)
 
@@ -87,15 +95,11 @@ if __name__ == '__main__':
        # ,'(炭火焼牛カルビ／ピーマン／オニオン／ガーリック／辛口糸唐辛子)'
        ]
 
-    for pizza in pizza_list:
-        time.sleep(1)
-        print("Let's order: ", pizza)
-        click_xpath("//*[text()='ピザ全品 デリバリーで30%off']")
-        click_xpath("//*[text()='ピザをお選びください（画像クリックで選択できます）']")
-        click_xpath("//*[@title='" + pizza + "']")
-        click_xpath("//*[text()='ふっくらパンピザ']")
-        click_xpath("//*[text()='カートに入れる']")
-        click_xpath("//*[text()='カートに商品を追加']")
-        print("Done.")
+    for i in range(2):
+        for pizza in pizza_list:
+            time.sleep(2)
+            print("Let's order: ", pizza)
+            order_pizza(pizza)
+            print("Done.")
 
     print("Finish!")
